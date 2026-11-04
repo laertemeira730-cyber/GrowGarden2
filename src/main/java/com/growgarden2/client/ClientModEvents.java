@@ -4,6 +4,7 @@ import com.growgarden2.GrowGarden2;
 import com.growgarden2.registry.ModBlocks;
 import com.growgarden2.registry.ModMenus;
 import com.growgarden2.shop.SeedShopScreen;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraftforge.api.distmarker.Dist;
