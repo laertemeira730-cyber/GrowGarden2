@@ -63,6 +63,11 @@ public class SeedShopMenu extends AbstractContainerMenu {
     }
 
     @Override
+    public ItemStack quickMoveStack(Player player, int index) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
     public boolean stillValid(Player player) {
         return true;
     }
