@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="growgarden2"
+version="${mod_version}"
+displayName="Grow Garden 2"
+authors="GrowGarden2 Community"
+description='''A personal Minecraft farming and garden-management mod. Version 0.1.0 adds invisible area marker blocks for gardens, shops and sales areas.'''
+
+[[dependencies.growgarden2]]
+modId="forge"
+mandatory=true
+versionRange="[47.2.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.growgarden2]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.20.2)"
+ordering="NONE"
+side="BOTH"

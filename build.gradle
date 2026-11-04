@@ -1,0 +1,52 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+group = 'com.growgarden2'
+version = '0.1.0'
+base.archivesName = 'growgarden2'
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods { growgarden2 { source sourceSets.main } }
+        }
+        client {}
+        server { args '--nogui' }
+        gameTestServer {}
+        data {
+            args '--mod', 'growgarden2', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+        }
+    }
+}
+repositories {
+    maven { url = 'https://maven.minecraftforge.net/' }
+    mavenCentral()
+}
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+}
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/mods.toml') { expand 'mod_version': project.version }
+}
+jar {
+    manifest {
+        attributes([
+            'Specification-Title': 'growgarden2',
+            'Specification-Vendor': 'GrowGarden2',
+            'Specification-Version': '1',
+            'Implementation-Title': project.name,
+            'Implementation-Version': project.jar.archiveVersion,
+            'Implementation-Vendor': 'GrowGarden2'
+        ])
+    }
+}
+jar.finalizedBy('reobfJar')
