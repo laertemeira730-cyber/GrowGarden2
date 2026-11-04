@@ -18,6 +18,8 @@ public class PlantPartBlock extends Block {
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                   InteractionHand hand, BlockHitResult hit) {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+        // Let the server resolve the owning plant; part-position data is authoritative there.
+        if (level.isClientSide) return InteractionResult.SUCCESS;
         BlockPos base = PlantStructures.findBase(level, pos);
         return base == null ? InteractionResult.PASS : PlantBlock.interactWithPlant(level, base, player);
     }
