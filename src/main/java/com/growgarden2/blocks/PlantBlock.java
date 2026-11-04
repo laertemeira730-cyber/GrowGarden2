@@ -34,9 +34,7 @@ public class PlantBlock extends BaseEntityBlock {
         registerDefaultState(stateDefinition.any().setValue(STAGE, 0));
     }
 
-    public PlantKind getKind() {
-        return kind;
-    }
+    public PlantKind getKind() { return kind; }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
@@ -44,9 +42,7 @@ public class PlantBlock extends BaseEntityBlock {
     }
 
     @Override
-    public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
-    }
+    public RenderShape getRenderShape(BlockState state) { return RenderShape.MODEL; }
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -63,6 +59,10 @@ public class PlantBlock extends BaseEntityBlock {
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                   InteractionHand hand, BlockHitResult hit) {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+        return interactWithPlant(level, pos, player);
+    }
+
+    public static InteractionResult interactWithPlant(Level level, BlockPos pos, Player player) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (!(level.getBlockEntity(pos) instanceof PlantBlockEntity plant) || plant.getOwner() == null) {
             return InteractionResult.CONSUME;
@@ -73,22 +73,19 @@ public class PlantBlock extends BaseEntityBlock {
         }
         if (!plant.isMature()) {
             long seconds = plant.getRemainingSeconds();
-            long minutes = seconds / 60;
-            long extraSeconds = seconds % 60;
             player.sendSystemMessage(Component.literal("Ainda está crescendo! Tempo restante: "
-                    + minutes + "m " + extraSeconds + "s."));
+                    + (seconds / 60) + "m " + (seconds % 60) + "s."));
             return InteractionResult.CONSUME;
         }
 
+        PlantKind kind = ((PlantBlock) level.getBlockState(pos).getBlock()).getKind();
         ItemStack harvest = new ItemStack(switch (kind) {
             case CARROT -> ModItems.CARROT_CROP.get();
             case TOMATO -> ModItems.TOMATO_CROP.get();
             case DRAGON_FRUIT -> ModItems.DRAGON_FRUIT_CROP.get();
         }, kind == PlantKind.DRAGON_FRUIT ? 2 : 1);
         if (!player.getInventory().add(harvest)) player.drop(harvest, false);
-        if (level instanceof ServerLevel serverLevel) {
-            PlantStructures.clearParts(serverLevel, pos);
-        }
+        if (level instanceof ServerLevel serverLevel) PlantStructures.clearParts(serverLevel, pos);
         level.removeBlock(pos, false);
         player.sendSystemMessage(Component.literal("Colheita realizada: " + kind.displayName() + "!"));
         return InteractionResult.CONSUME;

@@ -8,6 +8,7 @@ import com.growgarden2.blocks.PlantPartBlock;
 import com.growgarden2.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
@@ -17,29 +18,38 @@ public final class PlantStructures {
     public static void rebuild(ServerLevel level, BlockPos base, UUID owner,
                                PlantKind kind, int stage, boolean mature) {
         if (!(level.getBlockEntity(base) instanceof PlantBlockEntity plant)) return;
-        clearParts(level, plant);
 
+        // Each stage is a complete replacement: remove every block from the old
+        // structure before placing the exact block layout for the new stage.
+        clearParts(level, plant);
         List<Part> structure = structureFor(kind, stage, mature);
         List<BlockPos> placed = new ArrayList<>();
         AreaSavedData areas = AreaSavedData.get(level);
         for (Part part : structure) {
             BlockPos target = base.offset(part.x(), part.y(), part.z());
-            if (!areas.isInsideGarden(owner, target)) continue;
-            if (!level.hasChunkAt(target)) continue;
-
+            if (!areas.isInsideGarden(owner, target) || !level.hasChunkAt(target)) continue;
             Block current = level.getBlockState(target).getBlock();
             if (current != Blocks.AIR && !(current instanceof PlantPartBlock)) continue;
-            if (level.setBlock(target, part.block().defaultBlockState(), 3)) {
-                placed.add(target.immutable());
-            }
+            if (level.setBlock(target, part.block().defaultBlockState(), 3)) placed.add(target.immutable());
         }
         plant.setPartPositions(placed);
     }
 
-    public static void clearParts(ServerLevel level, BlockPos base) {
-        if (level.getBlockEntity(base) instanceof PlantBlockEntity plant) {
-            clearParts(level, plant);
+    public static BlockPos findBase(Level level, BlockPos partPos) {
+        for (int dy = 0; dy <= 3; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    BlockPos candidate = partPos.offset(dx, -dy, dz);
+                    if (level.getBlockEntity(candidate) instanceof PlantBlockEntity plant
+                            && plant.getPartPositions().contains(partPos)) return candidate;
+                }
+            }
         }
+        return null;
+    }
+
+    public static void clearParts(ServerLevel level, BlockPos base) {
+        if (level.getBlockEntity(base) instanceof PlantBlockEntity plant) clearParts(level, plant);
     }
 
     private static void clearParts(ServerLevel level, PlantBlockEntity plant) {
@@ -55,50 +65,72 @@ public final class PlantStructures {
         List<Part> parts = new ArrayList<>();
         switch (kind) {
             case CARROT -> {
-                if (stage >= 1) add(parts, ModBlocks.CARROT_LEAF.get(), 0, 1, 0);
-                if (stage >= 2) {
-                    add(parts, ModBlocks.CARROT_LEAF.get(), -1, 1, 0);
-                    add(parts, ModBlocks.CARROT_LEAF.get(), 1, 1, 0);
-                    add(parts, ModBlocks.CARROT_LEAF.get(), 0, 1, -1);
-                    add(parts, ModBlocks.CARROT_LEAF.get(), 0, 1, 1);
-                    add(parts, ModBlocks.CARROT_LEAF.get(), 0, 2, 0);
+                switch (stage) {
+                    case 1 -> add(parts, ModBlocks.CARROT_LEAF.get(), 0, 1, 0);
+                    case 2 -> {
+                        add(parts, ModBlocks.CARROT_LEAF.get(), 0, 1, 0);
+                        add(parts, ModBlocks.CARROT_LEAF.get(), -1, 1, 0);
+                        add(parts, ModBlocks.CARROT_LEAF.get(), 1, 1, 0);
+                        add(parts, ModBlocks.CARROT_LEAF.get(), 0, 1, -1);
+                        add(parts, ModBlocks.CARROT_LEAF.get(), 0, 1, 1);
+                        add(parts, ModBlocks.CARROT_LEAF.get(), 0, 2, 0);
+                    }
+                    default -> { }
                 }
             }
             case TOMATO -> {
-                add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 1, 0);
-                if (stage >= 1) {
-                    add(parts, ModBlocks.TOMATO_LEAF.get(), -1, 1, 0);
-                    add(parts, ModBlocks.TOMATO_LEAF.get(), 1, 1, 0);
-                    add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 1, -1);
-                    add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 1, 1);
-                    add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 2, 0);
-                }
-                if (stage >= 2) {
-                    add(parts, ModBlocks.TOMATO_LEAF.get(), -1, 2, 0);
-                    add(parts, ModBlocks.TOMATO_LEAF.get(), 1, 2, 0);
-                    add(parts, ModBlocks.TOMATO_FRUIT.get(), -1, 1, 1);
-                    add(parts, ModBlocks.TOMATO_FRUIT.get(), 1, 1, -1);
-                    if (mature) add(parts, ModBlocks.TOMATO_FRUIT.get(), 0, 2, 1);
+                switch (stage) {
+                    case 0 -> add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 1, 0);
+                    case 1 -> {
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 1, 0);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), -1, 1, 0);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), 1, 1, 0);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 1, -1);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 1, 1);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 2, 0);
+                    }
+                    case 2 -> {
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 1, 0);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), -1, 1, 0);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), 1, 1, 0);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 1, -1);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 1, 1);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), 0, 2, 0);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), -1, 2, 0);
+                        add(parts, ModBlocks.TOMATO_LEAF.get(), 1, 2, 0);
+                        add(parts, ModBlocks.TOMATO_FRUIT.get(), -1, 1, 1);
+                        add(parts, ModBlocks.TOMATO_FRUIT.get(), 1, 1, -1);
+                        if (mature) add(parts, ModBlocks.TOMATO_FRUIT.get(), 0, 2, 1);
+                    }
+                    default -> { }
                 }
             }
             case DRAGON_FRUIT -> {
-                add(parts, ModBlocks.DRAGON_STEM.get(), 0, 1, 0);
-                if (stage >= 1) {
-                    add(parts, ModBlocks.DRAGON_STEM.get(), 0, 2, 0);
-                    add(parts, ModBlocks.DRAGON_STEM.get(), -1, 2, 0);
-                    add(parts, ModBlocks.DRAGON_STEM.get(), 1, 2, 0);
-                }
-                if (stage >= 2) {
-                    add(parts, ModBlocks.DRAGON_STEM.get(), 0, 3, 0);
-                    add(parts, ModBlocks.DRAGON_STEM.get(), 0, 2, -1);
-                    add(parts, ModBlocks.DRAGON_STEM.get(), 0, 2, 1);
-                    add(parts, ModBlocks.DRAGON_STEM.get(), -1, 3, 0);
-                    add(parts, ModBlocks.DRAGON_STEM.get(), 1, 3, 0);
-                    if (mature) {
-                        add(parts, ModBlocks.DRAGON_FRUIT.get(), -1, 2, 1);
-                        add(parts, ModBlocks.DRAGON_FRUIT.get(), 1, 2, -1);
-                        add(parts, ModBlocks.DRAGON_FRUIT.get(), 0, 3, 1);
+                switch (stage) {
+                    case 0 -> add(parts, ModBlocks.DRAGON_STEM.get(), 0, 1, 0);
+                    case 1 -> {
+                        add(parts, ModBlocks.DRAGON_STEM.get(), 0, 1, 0);
+                        add(parts, ModBlocks.DRAGON_STEM.get(), 0, 2, 0);
+                        add(parts, ModBlocks.DRAGON_STEM.get(), -1, 2, 0);
+                        add(parts, ModBlocks.DRAGON_STEM.get(), 1, 2, 0);
                     }
+                    case 2 -> {
+                        add(parts, ModBlocks.DRAGON_STEM.get(), 0, 1, 0);
+                        add(parts, ModBlocks.DRAGON_STEM.get(), 0, 2, 0);
+                        add(parts, ModBlocks.DRAGON_STEM.get(), -1, 2, 0);
+                        add(parts, ModBlocks.DRAGON_STEM.get(), 1, 2, 0);
+                        add(parts, ModBlocks.DRAGON_STEM.get(), 0, 3, 0);
+                        add(parts, ModBlocks.DRAGON_STEM.get(), 0, 2, -1);
+                        add(parts, ModBlocks.DRAGON_STEM.get(), 0, 2, 1);
+                        add(parts, ModBlocks.DRAGON_STEM.get(), -1, 3, 0);
+                        add(parts, ModBlocks.DRAGON_STEM.get(), 1, 3, 0);
+                        if (mature) {
+                            add(parts, ModBlocks.DRAGON_FRUIT.get(), -1, 2, 1);
+                            add(parts, ModBlocks.DRAGON_FRUIT.get(), 1, 2, -1);
+                            add(parts, ModBlocks.DRAGON_FRUIT.get(), 0, 3, 1);
+                        }
+                    }
+                    default -> { }
                 }
             }
         }

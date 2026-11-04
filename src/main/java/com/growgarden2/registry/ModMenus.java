@@ -2,6 +2,7 @@ package com.growgarden2.registry;
 
 import com.growgarden2.GrowGarden2;
 import com.growgarden2.shop.SeedShopMenu;
+import com.growgarden2.shop.SellShopMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.registries.DeferredRegister;
@@ -15,6 +16,9 @@ public final class ModMenus {
     public static final RegistryObject<MenuType<SeedShopMenu>> SEED_SHOP =
             MENUS.register("seed_shop", () -> IForgeMenuType.create(
                     (windowId, inventory, data) -> new SeedShopMenu(windowId, inventory)));
+    public static final RegistryObject<MenuType<SellShopMenu>> SELL_SHOP =
+            MENUS.register("sell_shop", () -> IForgeMenuType.create(
+                    (windowId, inventory, data) -> new SellShopMenu(windowId, inventory)));
 
     private ModMenus() {}
 }

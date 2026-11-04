@@ -4,6 +4,7 @@ import com.growgarden2.GrowGarden2;
 import com.growgarden2.registry.ModBlocks;
 import com.growgarden2.registry.ModMenus;
 import com.growgarden2.shop.SeedShopScreen;
+import com.growgarden2.shop.SellShopScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -20,9 +21,7 @@ public final class ClientModEvents {
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             MenuScreens.register(ModMenus.SEED_SHOP.get(), SeedShopScreen::new);
-
-            // Plant models use crossed planes and textures with transparent pixels.
-            // CUTOUT makes fully transparent pixels invisible instead of rendering them black.
+            MenuScreens.register(ModMenus.SELL_SHOP.get(), SellShopScreen::new);
             ItemBlockRenderTypes.setRenderLayer(ModBlocks.CARROT_PLANT.get(), RenderType.cutout());
             ItemBlockRenderTypes.setRenderLayer(ModBlocks.TOMATO_PLANT.get(), RenderType.cutout());
             ItemBlockRenderTypes.setRenderLayer(ModBlocks.DRAGON_FRUIT_PLANT.get(), RenderType.cutout());

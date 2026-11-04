@@ -2,6 +2,7 @@ package com.growgarden2.blocks;
 
 import com.growgarden2.registry.ModBlocks;
 import com.growgarden2.shop.SeedShopMenu;
+import com.growgarden2.shop.SellShopMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,18 +22,25 @@ public class AreaMarkerBlock extends Block {
     public AreaMarkerBlock(BlockBehaviour.Properties properties) { super(properties); }
 
     @Override
-    public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.INVISIBLE;
-    }
+    public RenderShape getRenderShape(BlockState state) { return RenderShape.INVISIBLE; }
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                   InteractionHand hand, BlockHitResult hit) {
-        if (state.is(ModBlocks.SHOP_MARKER.get()) && hand == InteractionHand.MAIN_HAND) {
+        if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+        if (state.is(ModBlocks.SHOP_MARKER.get())) {
             if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
                 NetworkHooks.openScreen(serverPlayer,
                         new SimpleMenuProvider((id, inventory, p) -> new SeedShopMenu(id, inventory),
                                 Component.literal("Loja de sementes")));
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide);
+        }
+        if (state.is(ModBlocks.SALES_MARKER.get())) {
+            if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+                NetworkHooks.openScreen(serverPlayer,
+                        new SimpleMenuProvider((id, inventory, p) -> new SellShopMenu(id, inventory),
+                                Component.literal("Central de vendas")));
             }
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
