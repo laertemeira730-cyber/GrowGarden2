@@ -68,7 +68,8 @@ public class PlantBlockEntity extends BlockEntity {
 
         PlantKind kind = ((PlantBlock) state.getBlock()).getKind();
         long elapsed = Math.max(0L, level.getGameTime() - plant.plantedAt);
-        int nextStage = (int) Math.min(2L, (elapsed * 3L) / kind.growthTicks());
+        int nextStage = elapsed >= kind.growthTicks() ? 2
+                : (elapsed >= kind.growthTicks() / 2L ? 1 : 0);
         boolean nextMature = elapsed >= kind.growthTicks();
         int currentStage = state.getValue(PlantBlock.STAGE);
         if (nextStage == currentStage && nextMature == plant.mature) return;
