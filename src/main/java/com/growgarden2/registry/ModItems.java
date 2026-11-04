@@ -18,5 +18,12 @@ public final class ModItems {
     public static final RegistryObject<Item> SALES_MARKER = ITEMS.register("sales_marker",
             () -> new BlockItem(ModBlocks.SALES_MARKER.get(), new Item.Properties()));
 
+    public static final RegistryObject<Item> CARROT_SEEDS =
+            ITEMS.register("carrot_seeds", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> TOMATO_SEEDS =
+            ITEMS.register("tomato_seeds", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> DRAGON_FRUIT_SEEDS =
+            ITEMS.register("dragon_fruit_seeds", () -> new Item(new Item.Properties()));
+
     private ModItems() {}
 }

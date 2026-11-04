@@ -1,5 +1,12 @@
 {
-  "block.growgarden2.garden_marker": "Garden Marker",
-  "block.growgarden2.shop_marker": "Shop Marker",
-  "block.growgarden2.sales_marker": "Sales Marker"
+  "block.growgarden2.garden_marker": "Garden Area Marker",
+  "block.growgarden2.shop_marker": "Shop Area Marker",
+  "block.growgarden2.sales_marker": "Sales Area Marker",
+  "item.growgarden2.garden_marker": "Garden Area Marker",
+  "item.growgarden2.shop_marker": "Shop Area Marker",
+  "item.growgarden2.sales_marker": "Sales Area Marker",
+  "item.growgarden2.carrot_seeds": "Carrot Seeds",
+  "item.growgarden2.tomato_seeds": "Tomato Seeds",
+  "item.growgarden2.dragon_fruit_seeds": "Dragon Fruit Seeds",
+  "container.growgarden2.seed_shop": "Seed Shop"
 }

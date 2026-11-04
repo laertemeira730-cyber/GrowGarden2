@@ -2,5 +2,11 @@
   "block.growgarden2.garden_marker": "Delimitador de Jardim",
   "block.growgarden2.shop_marker": "Delimitador de Loja",
   "block.growgarden2.sales_marker": "Delimitador de Vendas",
-  "itemGroup.growgarden2": "Grow Garden 2"
+  "item.growgarden2.garden_marker": "Delimitador de Jardim",
+  "item.growgarden2.shop_marker": "Delimitador de Loja",
+  "item.growgarden2.sales_marker": "Delimitador de Vendas",
+  "item.growgarden2.carrot_seeds": "Sementes de Cenoura",
+  "item.growgarden2.tomato_seeds": "Sementes de Tomate",
+  "item.growgarden2.dragon_fruit_seeds": "Sementes de Fruta-dragão",
+  "container.growgarden2.seed_shop": "Loja de Sementes"
 }
