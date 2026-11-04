@@ -101,6 +101,23 @@ public class AreaSavedData extends SavedData {
         return List.copyOf(result);
     }
 
+    public UUID getGardenOwnerAt(BlockPos pos) {
+        UUID found = null;
+        for (AreaRecord area : areas) {
+            if (area.type() != AreaType.GARDEN || !area.contains(pos)) continue;
+            if (found != null && !found.equals(area.owner())) return null;
+            found = area.owner();
+        }
+        return found;
+    }
+
+    public boolean isInsideGarden(UUID owner, BlockPos pos) {
+        for (AreaRecord area : areas) {
+            if (area.type() == AreaType.GARDEN && area.owner().equals(owner) && area.contains(pos)) return true;
+        }
+        return false;
+    }
+
     private static BlockPos readPos(CompoundTag tag, String key) {
         CompoundTag pos = tag.getCompound(key);
         return new BlockPos(pos.getInt("X"), pos.getInt("Y"), pos.getInt("Z"));

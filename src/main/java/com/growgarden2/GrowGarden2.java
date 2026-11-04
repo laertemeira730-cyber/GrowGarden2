@@ -1,6 +1,8 @@
 package com.growgarden2;
 
 import com.growgarden2.areas.AreaEvents;
+import com.growgarden2.areas.PlantEvents;
+import com.growgarden2.registry.ModBlockEntities;
 import com.growgarden2.registry.ModBlocks;
 import com.growgarden2.registry.ModItems;
 import com.growgarden2.registry.ModMenus;
@@ -18,10 +20,12 @@ public class GrowGarden2 {
     public GrowGarden2() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModBlocks.BLOCKS.register(modBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModMenus.MENUS.register(modBus);
         modBus.addListener(this::addCreative);
         MinecraftForge.EVENT_BUS.register(AreaEvents.class);
+        MinecraftForge.EVENT_BUS.register(PlantEvents.class);
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
@@ -34,6 +38,9 @@ public class GrowGarden2 {
             event.accept(ModItems.CARROT_SEEDS);
             event.accept(ModItems.TOMATO_SEEDS);
             event.accept(ModItems.DRAGON_FRUIT_SEEDS);
+            event.accept(ModItems.CARROT_CROP);
+            event.accept(ModItems.TOMATO_CROP);
+            event.accept(ModItems.DRAGON_FRUIT_CROP);
         }
     }
 }

@@ -8,5 +8,8 @@
   "item.growgarden2.carrot_seeds": "Sementes de Cenoura",
   "item.growgarden2.tomato_seeds": "Sementes de Tomate",
   "item.growgarden2.dragon_fruit_seeds": "Sementes de Fruta-dragão",
+  "item.growgarden2.carrot_crop": "Cenoura Colhida",
+  "item.growgarden2.tomato_crop": "Tomate",
+  "item.growgarden2.dragon_fruit_crop": "Fruta-dragão",
   "container.growgarden2.seed_shop": "Loja de Sementes"
 }
