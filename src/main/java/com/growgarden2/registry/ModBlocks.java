@@ -27,7 +27,7 @@ public final class ModBlocks {
 
     private static BlockBehaviour.Properties partProperties() {
         return BlockBehaviour.Properties.of().strength(0.2F).noCollission().noOcclusion()
-                .noDrops().sound(SoundType.CROP);
+                .sound(SoundType.CROP);
     }
 
     public static final RegistryObject<Block> GARDEN_MARKER =
