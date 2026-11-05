@@ -1,1 +1,1 @@
-{"parent":"minecraft:item/generated","textures":{"layer0":"minecraft:item/sunflower"}}
+{"parent":"minecraft:item/generated","textures":{"layer0":"growgarden2:item/sunflower_crop"}}

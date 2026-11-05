@@ -1,1 +1,1 @@
-{"parent":"minecraft:item/generated","textures":{"layer0":"minecraft:item/vine"}}
+{"parent":"minecraft:item/generated","textures":{"layer0":"growgarden2:item/poison_ivy_crop"}}
