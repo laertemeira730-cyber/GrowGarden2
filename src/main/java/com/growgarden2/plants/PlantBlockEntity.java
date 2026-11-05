@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 import com.growgarden2.areas.AreaSavedData;
 import com.growgarden2.blocks.PlantBlock;
-import com.growgarden2.blocks.PlantPartBlock;
 import com.growgarden2.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -18,7 +17,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class PlantBlockEntity extends BlockEntity {
     private UUID owner;
-    private long plantedAt = -1L;
+    private double growthProgressTicks;
+    private long lastGrowthUpdate = -1L;
     private boolean mature;
     private final List<BlockPos> partPositions = new ArrayList<>();
 
@@ -29,7 +29,8 @@ public class PlantBlockEntity extends BlockEntity {
     public void initialize(UUID owner) {
         if (level == null || level.isClientSide) return;
         this.owner = owner;
-        this.plantedAt = level.getGameTime();
+        this.growthProgressTicks = 0.0D;
+        this.lastGrowthUpdate = level.getGameTime();
         this.mature = false;
         setChanged();
         PlantStructures.rebuild((ServerLevel) level, worldPosition, owner,
@@ -45,10 +46,11 @@ public class PlantBlockEntity extends BlockEntity {
     }
 
     public long getRemainingSeconds() {
-        if (level == null || plantedAt < 0) return 0;
-        long remaining = ((PlantBlock) getBlockState().getBlock()).getKind().growthTicks()
-                - Math.max(0L, level.getGameTime() - plantedAt);
-        return Math.max(0L, (remaining + 19L) / 20L);
+        if (level == null) return 0L;
+        long remainingTicks = Math.max(0L,
+                ((PlantBlock) getBlockState().getBlock()).getKind().growthTicks()
+                        - (long) growthProgressTicks);
+        return (long) Math.ceil(remainingTicks / (20.0D * PlantGrowthSpeed.getMultiplier()));
     }
 
     public List<BlockPos> getPartPositions() {
@@ -63,16 +65,24 @@ public class PlantBlockEntity extends BlockEntity {
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, PlantBlockEntity plant) {
         if (!(level instanceof ServerLevel serverLevel) || level.getGameTime() % 20L != 0L) return;
-        if (plant.owner == null || plant.plantedAt < 0L) return;
+        if (plant.owner == null || plant.lastGrowthUpdate < 0L) return;
         if (!AreaSavedData.get(serverLevel).isInsideGarden(plant.owner, pos)) return;
 
+        long now = level.getGameTime();
+        long elapsedTicks = Math.max(0L, now - plant.lastGrowthUpdate);
+        plant.lastGrowthUpdate = now;
+        plant.growthProgressTicks += elapsedTicks * PlantGrowthSpeed.getMultiplier();
+
         PlantKind kind = ((PlantBlock) state.getBlock()).getKind();
-        long elapsed = Math.max(0L, level.getGameTime() - plant.plantedAt);
-        int nextStage = elapsed >= kind.growthTicks() ? 2
-                : (elapsed >= kind.growthTicks() / 2L ? 1 : 0);
-        boolean nextMature = elapsed >= kind.growthTicks();
+        double totalGrowthTicks = kind.growthTicks();
+        int nextStage = plant.growthProgressTicks >= totalGrowthTicks ? 2
+                : (plant.growthProgressTicks >= totalGrowthTicks / 2.0D ? 1 : 0);
+        boolean nextMature = plant.growthProgressTicks >= totalGrowthTicks;
         int currentStage = state.getValue(PlantBlock.STAGE);
-        if (nextStage == currentStage && nextMature == plant.mature) return;
+        if (nextStage == currentStage && nextMature == plant.mature) {
+            plant.setChanged();
+            return;
+        }
 
         if (nextStage != currentStage) {
             level.setBlock(pos, state.setValue(PlantBlock.STAGE, nextStage), 3);
@@ -86,7 +96,8 @@ public class PlantBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         if (owner != null) tag.putUUID("Owner", owner);
-        tag.putLong("PlantedAt", plantedAt);
+        tag.putDouble("GrowthProgressTicks", growthProgressTicks);
+        tag.putLong("LastGrowthUpdate", lastGrowthUpdate);
         tag.putBoolean("Mature", mature);
 
         ListTag parts = new ListTag();
@@ -104,7 +115,8 @@ public class PlantBlockEntity extends BlockEntity {
     public void load(CompoundTag tag) {
         super.load(tag);
         owner = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
-        plantedAt = tag.getLong("PlantedAt");
+        growthProgressTicks = tag.getDouble("GrowthProgressTicks");
+        lastGrowthUpdate = tag.getLong("LastGrowthUpdate");
         mature = tag.getBoolean("Mature");
         partPositions.clear();
         ListTag parts = tag.getList("PlantParts", Tag.TAG_COMPOUND);
