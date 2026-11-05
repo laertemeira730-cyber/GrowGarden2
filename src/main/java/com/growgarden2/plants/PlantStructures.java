@@ -19,9 +19,9 @@ public final class PlantStructures {
                                PlantKind kind, int stage, boolean mature) {
         if (!(level.getBlockEntity(base) instanceof PlantBlockEntity plant)) return;
 
-        // Each stage is a complete replacement: remove every block from the old
-        // structure before placing the exact block layout for the new stage.
-        clearParts(level, plant);
+        // Clear tracked positions AND sweep the full footprint to remove stale parts
+        // left by earlier growth stages or older saved versions of the mod.
+        clearParts(level, base);
         List<Part> structure = structureFor(kind, stage, mature);
         List<BlockPos> placed = new ArrayList<>();
         AreaSavedData areas = AreaSavedData.get(level);
@@ -49,13 +49,17 @@ public final class PlantStructures {
     }
 
     public static void clearParts(ServerLevel level, BlockPos base) {
-        if (level.getBlockEntity(base) instanceof PlantBlockEntity plant) clearParts(level, plant);
-    }
-
-    private static void clearParts(ServerLevel level, PlantBlockEntity plant) {
-        for (BlockPos pos : plant.getPartPositions()) {
-            if (level.getBlockState(pos).getBlock() instanceof PlantPartBlock) {
-                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+        if (!(level.getBlockEntity(base) instanceof PlantBlockEntity plant)) return;
+        // Known positions may be incomplete in worlds saved by an older build.
+        for (BlockPos partPos : plant.getPartPositions()) {
+            if (level.getBlockState(partPos).getBlock() instanceof PlantPartBlock) {
+                level.setBlock(partPos, Blocks.AIR.defaultBlockState(), 3);
+            }
+        }
+        // All plant structures use this bounded footprint: x/z -1..1, y 1..3.
+        for (BlockPos scan : BlockPos.betweenClosed(base.offset(-1, 1, -1), base.offset(1, 3, 1))) {
+            if (level.getBlockState(scan).getBlock() instanceof PlantPartBlock) {
+                level.setBlock(scan, Blocks.AIR.defaultBlockState(), 3);
             }
         }
         plant.setPartPositions(List.of());
