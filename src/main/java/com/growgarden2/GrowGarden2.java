@@ -2,6 +2,7 @@ package com.growgarden2;
 
 import com.growgarden2.areas.AreaEvents;
 import com.growgarden2.areas.PlantEvents;
+import com.growgarden2.commands.GrowGardenCommands;
 import com.growgarden2.registry.ModBlockEntities;
 import com.growgarden2.registry.ModBlocks;
 import com.growgarden2.registry.ModItems;
@@ -26,6 +27,7 @@ public class GrowGarden2 {
         modBus.addListener(this::addCreative);
         MinecraftForge.EVENT_BUS.register(AreaEvents.class);
         MinecraftForge.EVENT_BUS.register(PlantEvents.class);
+        MinecraftForge.EVENT_BUS.register(GrowGardenCommands.class);
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
