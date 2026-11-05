@@ -6,8 +6,8 @@ import com.growgarden2.registry.ModMenus;
 import com.growgarden2.shop.SeedShopScreen;
 import com.growgarden2.shop.SellShopScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -16,15 +16,12 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 @Mod.EventBusSubscriber(modid = GrowGarden2.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ClientModEvents {
     private ClientModEvents() {}
-
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             MenuScreens.register(ModMenus.SEED_SHOP.get(), SeedShopScreen::new);
             MenuScreens.register(ModMenus.SELL_SHOP.get(), SellShopScreen::new);
-            ItemBlockRenderTypes.setRenderLayer(ModBlocks.CARROT_PLANT.get(), RenderType.cutout());
-            ItemBlockRenderTypes.setRenderLayer(ModBlocks.TOMATO_PLANT.get(), RenderType.cutout());
-            ItemBlockRenderTypes.setRenderLayer(ModBlocks.DRAGON_FRUIT_PLANT.get(), RenderType.cutout());
+            for (var plant : ModBlocks.PLANTS) ItemBlockRenderTypes.setRenderLayer(plant.get(), RenderType.cutout());
             ItemBlockRenderTypes.setRenderLayer(ModBlocks.CARROT_LEAF.get(), RenderType.cutout());
             ItemBlockRenderTypes.setRenderLayer(ModBlocks.TOMATO_LEAF.get(), RenderType.cutout());
             ItemBlockRenderTypes.setRenderLayer(ModBlocks.TOMATO_FRUIT.get(), RenderType.cutout());

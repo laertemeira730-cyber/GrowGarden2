@@ -3,6 +3,7 @@ package com.growgarden2;
 import com.growgarden2.areas.AreaEvents;
 import com.growgarden2.areas.PlantEvents;
 import com.growgarden2.commands.GrowGardenCommands;
+import com.growgarden2.plants.PlantKind;
 import com.growgarden2.registry.ModBlockEntities;
 import com.growgarden2.registry.ModBlocks;
 import com.growgarden2.registry.ModItems;
@@ -17,7 +18,6 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(GrowGarden2.MOD_ID)
 public class GrowGarden2 {
     public static final String MOD_ID = "growgarden2";
-
     public GrowGarden2() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModBlocks.BLOCKS.register(modBus);
@@ -29,7 +29,6 @@ public class GrowGarden2 {
         MinecraftForge.EVENT_BUS.register(PlantEvents.class);
         MinecraftForge.EVENT_BUS.register(GrowGardenCommands.class);
     }
-
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey().equals(CreativeModeTabs.FUNCTIONAL_BLOCKS)) {
             event.accept(ModItems.GARDEN_MARKER);
@@ -37,12 +36,10 @@ public class GrowGarden2 {
             event.accept(ModItems.SALES_MARKER);
         }
         if (event.getTabKey().equals(CreativeModeTabs.FOOD_AND_DRINKS)) {
-            event.accept(ModItems.CARROT_SEEDS);
-            event.accept(ModItems.TOMATO_SEEDS);
-            event.accept(ModItems.DRAGON_FRUIT_SEEDS);
-            event.accept(ModItems.CARROT_CROP);
-            event.accept(ModItems.TOMATO_CROP);
-            event.accept(ModItems.DRAGON_FRUIT_CROP);
+            for (PlantKind kind : PlantKind.values()) {
+                event.accept(ModItems.seedFor(kind));
+                event.accept(ModItems.cropFor(kind));
+            }
         }
     }
 }
